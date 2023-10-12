@@ -1,0 +1,21 @@
+---
+title: "Project 1"
+author: "Archit Singh"
+output: pdf_document
+date: "2023-10-1"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Introduction
+
+## Methods/ Datasets
+
+## Results
+
+## Conclusions
+
+## Appendix
