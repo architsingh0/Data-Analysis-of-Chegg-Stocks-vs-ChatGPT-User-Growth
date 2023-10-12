@@ -1,18 +1,97 @@
 ---
 title: "Project 1"
-author: "Archit Singh"
+author: "Archit Singh, Sreeram Kondapalli"
 output: pdf_document
-date: "2023-10-1"
+date: "2023-10-12"
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r, echo=FALSE, message=FALSE}
+library(ggplot2)
+library(dplyr)
+```
+
 
 ## Introduction
 
+- In our project we wish to analyze how the rise of AI tools like ChatGPT has impacted the education industry and the tech industry
+as a whole, seeing how companies that embraced it fared versus companies that did not.  We intend to delve into various aspects 
+of this transformation, examining the extent to which companies that have adopted AI technologies have fared compared to those 
+that have not embraced these innovations.
+- Our primary motivating question for this project is: "What is the impact of AI tools, such as ChatGPT, on the education industry 
+and the tech sector, and how has this adoption influenced the competitive landscape and performance of companies?"
+
 ## Methods/ Datasets
+
+There are many datasets needed to analyze this topic as a whole. We have datasets accross the range from datasets of companies' stocks
+to datasets for ChatGPT user growth, as well as a student survey on how they feel about AI.
+
+#### ChatGPT User growth VS Chegg stock
+
+```{r}
+
+
+```
+
+#### Students' Perspective on AI
+
+#### Stock of Companies That Released Public AI
+
+
+
+The following are the companies that announced generative AI
+
+```{r, echo=FALSE}
+NVDA <- read.csv("NVDA.csv")
+
+# Convert the 'Date' column to a Date object
+NVDA$Date <- as.Date(NVDA$Date)
+
+# Create a line plot using ggplot2 with a red line
+ggplot(NVDA, aes(x = Date, y = Close)) +
+  geom_line(color = "red") +
+  labs(title = "NVIDIA Stock Price Over Time",
+       x = "Date",
+       y = "Close Price") +
+  theme_minimal()
+```
+
+```{r, echo=FALSE}
+MSFT <- read.csv("MSFT.csv")
+
+# Convert the 'Date' column to a Date object
+MSFT$Date <- as.Date(MSFT$Date)
+
+# Create a line plot using ggplot2 with a red line
+ggplot(MSFT, aes(x = Date, y = Close)) +
+  geom_line(color = "red") +
+  labs(title = "Microsoft Stock Price Over Time",
+       x = "Date",
+       y = "Close Price") +
+  theme_minimal()
+```
+
+```{r, echo=FALSE}
+GOOG <- read.csv("GOOGL.csv")
+
+# Convert the 'Date' column to a Date object
+GOOG$Date <- as.Date(GOOG$Date)
+
+# Create a line plot using ggplot2 with a red line
+ggplot(GOOG, aes(x = Date, y = Close)) +
+  geom_line(color = "red") +
+  labs(title = "Google Stock Price Over Time",
+       x = "Date",
+       y = "Close Price") +
+  theme_minimal()
+```
+
+#### Salaries for AI and ML Specialists
+
+#### ML Model (Companies that integrate AI)
 
 ## Results
 
