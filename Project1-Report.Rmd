@@ -65,8 +65,8 @@ ggplot(chatgpt_users, aes(x=Date, y=TotalVisits)) +
   )
 ```
 ```{r}
-# Assuming you've already loaded the data
-chegg_stock_price <- read.csv("chegg-stock-dataset-Monthly.csv")
+# Load in data
+chegg_stock_price <- read.csv("CHGG.csv")
 
 # Ensure the Date column is a Date type
 chegg_stock_price$Date <- as.Date(chegg_stock_price$Date, format="%Y-%m-%d")
@@ -94,25 +94,60 @@ ggplot(data = filtered_chegg_stock_price, aes(x = Date, y = Close)) +
 
 ```
 
+ 
 #### ChatGPT User growth VS Chegg stock
-
+wzp
 ```{r}
-```
+chatgpt_users$Date <- as.Date(chatgpt_users$Date)
+filtered_chegg_stock_price <- chegg_stock_price %>%
+  filter(Date >= as.Date("2022-05-01") & Date <= as.Date("2023-08-01"))
+label_format_millions <- function(x) {
+  scales::number_format(scale = 1e-6, suffix = "m")(x)
+}
 
-#### Time taken by services to reach 1 million users
+# Set up a scale factor based on the max values of both datasets
+scale_factor <- max(chatgpt_users$TotalVisits) / max(filtered_chegg_stock_price$Close)
 
-Hello 
+# Begin the ggplot visualization
+p <- ggplot() +
 
-```{r, echo=FALSE}
-one_mil_users <- read.csv("time-taken-by-services-to-reach-1M.csv")
+  # Plot ChatGPT User Growth with thicker line and color adjustments
+  geom_line(data = chatgpt_users, 
+            aes(x = Date, y = TotalVisits, color = "ChatGPT User Growth"), 
+            size = 1.2, alpha = 0.8) +
+  
+  # Plot Chegg Stock Price with adjusted scale factor, thicker line, and color adjustments
+  geom_line(data = filtered_chegg_stock_price, 
+            aes(x = Date, y = Close * scale_factor, color = "Chegg Stock Price"), 
+            size = 1.2, alpha = 0.8) +
 
-ggplot(one_mil_users, aes(x = reorder(Service, Days_to_reach_1M_users), y = Days_to_reach_1M_users)) +
-  geom_bar(stat = "identity", fill = "steelblue") +
-  geom_text(aes(label = Days_to_reach_1M_users), hjust=-0.01) +
-  labs(x = "Service", y = "Days to reach 1M users") +
-  coord_flip() +
-  ylim(0, max(one_mil_users$Days_to_reach_1M_users) + 100) +
-  theme_minimal()
+  # Set primary y-axis for ChatGPT User Growth with label format and secondary y-axis for Chegg Stock Price
+  scale_y_continuous(name = "ChatGPT User Growth", 
+                     labels = label_format_millions, 
+                     sec.axis = sec_axis(~./scale_factor, name = "Chegg Stock Price")) +
+
+  # Define graph title, subtitle, and x-axis label
+  labs(title = "Comparison: Chegg Stock Price vs ChatGPT User Growth", 
+       subtitle = "Visual representation of growth trends over time", 
+       x = "Date", 
+       caption = "Data source: Chegg & OpenAI") +
+  
+  # Use a light grid theme for a professional look
+  theme_light() +
+
+  # Increase the title font size and style
+  theme(plot.title = element_text(face = "bold", size = 16),
+        plot.subtitle = element_text(face = "italic", size = 12),
+        axis.title.x = element_text(size = 14),
+        axis.title.y = element_text(size = 14),
+        legend.position = "bottom",
+        legend.key.size = unit(1, "cm")) +
+
+  # Manually set the colors for the two lines with a pleasant color palette
+  scale_color_manual(values = c("Chegg Stock Price" = "#1f77b4", "ChatGPT User Growth" = "#ff7f0e"))
+
+# Display the plot
+print(p)
 ```
 
 #### Students' Perspective on AI
