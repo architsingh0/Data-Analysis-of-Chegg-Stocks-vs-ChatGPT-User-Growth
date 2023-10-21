@@ -12,6 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r, echo=FALSE, message=FALSE}
 library(ggplot2)
 library(dplyr)
+library(tidyr)
 ```
 
 
@@ -29,11 +30,36 @@ and the tech sector, and how has this adoption influenced the competitive landsc
 There are many datasets needed to analyze this topic as a whole. We have datasets accross the range from datasets of companies' stocks
 to datasets for ChatGPT user growth, as well as a student survey on how they feel about AI.
 
+#### ChatGPT User Growth 
+
+```{r}
+# Read data from the CSV file
+chatgpt_users <- read.csv("Number of ChatGPT users recorded over past months.csv")
+head(chatgpt_users)
+chatgpt_users <- chatgpt_users %>%
+  rename(TotalVisits = 'Number.of.ChatGPT.users.recorded.over.past.months')
+```
+```{r}
+# Convert the 'Date' column to Date type
+chatgpt_users$Date <- as.Date(chatgpt_users$Date, format="%Y-%m")
+```
+```{r}
+# Plotting using ggplot2
+# ggplot(chatgpt_users, aes(x=Date, y=TotalVisits)) +
+#   geom_line() +
+#   geom_point() +
+#   labs(title="Number of ChatGPT Users Over Time", x="Date", y="Total Visits") +
+#   theme_minimal()
+```
+
 #### ChatGPT User growth VS Chegg stock
 
 ```{r}
+```
 
-
+#### Time taken by services to reach 1 million users
+```{r}
+# 1_mil_users
 ```
 
 #### Students' Perspective on AI
