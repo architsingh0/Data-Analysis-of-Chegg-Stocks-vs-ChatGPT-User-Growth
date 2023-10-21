@@ -36,20 +36,62 @@ to datasets for ChatGPT user growth, as well as a student survey on how they fee
 # Read data from the CSV file
 chatgpt_users <- read.csv("Number of ChatGPT users recorded over past months.csv")
 head(chatgpt_users)
+#Renaming for simplicity
 chatgpt_users <- chatgpt_users %>%
   rename(TotalVisits = 'Number.of.ChatGPT.users.recorded.over.past.months')
+chatgpt_users$Date <- as.Date(chatgpt_users$Date, format="%Y-%m-%d")
 ```
 ```{r}
-# Convert the 'Date' column to Date type
-chatgpt_users$Date <- as.Date(chatgpt_users$Date, format="%Y-%m")
+label_format_millions <- function(x) {
+  scales::number_format(scale = 1e-6, suffix = "m")(x)
+}
+
+ggplot(chatgpt_users, aes(x=Date, y=TotalVisits)) +
+  geom_line(color = "blue", size = 1.2) +
+  geom_point(color = "red", size = 3, shape = 19, alpha = 0.7) +
+  labs(title="Number of ChatGPT Users Over Time",
+       subtitle="Monthly data from Nov 2022 to Aug 2023",
+       x="Date", y="Total Visits (in millions)") +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b %Y") +
+  scale_y_continuous(labels = label_format_millions) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(size = 12, hjust = 0.5),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.title = element_text(size = 14, face = "bold"),
+    panel.grid.major = element_line(color = "gray80"),
+    panel.grid.minor = element_blank()
+  )
 ```
 ```{r}
-# Plotting using ggplot2
-# ggplot(chatgpt_users, aes(x=Date, y=TotalVisits)) +
-#   geom_line() +
-#   geom_point() +
-#   labs(title="Number of ChatGPT Users Over Time", x="Date", y="Total Visits") +
-#   theme_minimal()
+# Assuming you've already loaded the data
+chegg_stock_price <- read.csv("chegg-stock-dataset-Monthly.csv")
+
+# Ensure the Date column is a Date type
+chegg_stock_price$Date <- as.Date(chegg_stock_price$Date, format="%Y-%m-%d")
+
+# Filter the data
+filtered_chegg_stock_price <- chegg_stock_price %>%
+  filter(Date >= as.Date("2022-05-01") & Date <= as.Date("2022-11-01"))
+
+# Enhanced graph
+ggplot(data = filtered_chegg_stock_price, aes(x = Date, y = Close)) +
+  geom_line(aes(color = "Stock Price"), size = 1.5) +
+  geom_point(aes(color = "Stock Price"), size = 3) +
+  scale_color_manual(name = "", values = c("Stock Price" = "blue")) +
+  labs(title = "Chegg Stock Price 6 months before ChatGPT",
+       x = "Month",
+       y = "Closing Price ($)") +
+  theme_minimal() +
+  theme(
+    panel.grid.major = element_line(color = "gray90", size = 0.5),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "none"
+  ) +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b %Y")
+
 ```
 
 #### ChatGPT User growth VS Chegg stock
