@@ -58,15 +58,42 @@ chatgpt_users$Date <- as.Date(chatgpt_users$Date, format="%Y-%m")
 ```
 
 #### Time taken by services to reach 1 million users
-```{r}
-# 1_mil_users
+
+Hello 
+
+```{r, echo=FALSE}
+one_mil_users <- read.csv("time-taken-by-services-to-reach-1M.csv")
+
+ggplot(one_mil_users, aes(x = reorder(Service, Days_to_reach_1M_users), y = Days_to_reach_1M_users)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  geom_text(aes(label = Days_to_reach_1M_users), hjust=-0.01) +
+  labs(x = "Service", y = "Days to reach 1M users") +
+  coord_flip() +
+  ylim(0, max(one_mil_users$Days_to_reach_1M_users) + 100) +
+  theme_minimal()
 ```
 
 #### Students' Perspective on AI
 
+hello
+
+```{r}
+students_survey_ai <- read.csv("Survey_AI.csv")
+
+ggplot(students_survey_ai, aes(x = Q7.Utility_grade)) +
+  geom_histogram(binwidth = 1, fill = "steelblue", color = "black") +
+  labs(x = "Utility Grade", y = "Count", title = "Distribution of Utility Grade")
+
+# Bar plot for Q11.Disadvantage_educational_process
+students_survey_ai %>%
+  count(Q11.Disadvantage_educational_process) %>%
+  ggplot(aes(x = reorder(Q11.Disadvantage_educational_process, n), y = n)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  labs(x = "Disadvantage in Educational Process", y = "Count", title = "Frequency of Each Disadvantage") +
+  coord_flip()
+```
+
 #### Stock of Companies That Released Public AI
-
-
 
 The following are the companies that announced generative AI
 
