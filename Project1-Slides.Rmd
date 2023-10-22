@@ -1,0 +1,30 @@
+---
+title: "Analyzing/Visualizing Residuals "
+author: "Archit Singh, Sreeram Kondapalli"
+date: "2023-10-17"
+output:
+    ioslides_presentation:
+        widescreen: yes
+        smaller: yes
+        transition: faster
+---
+<style type="text/css">
+body p, div, h1, h2, h3, h4, h5 {
+    color: black;
+    font-family: Modern Computer Roman;
+}
+slides > slide.title-slide hgroup h1 {
+    color: #8C1D40; <!--the maroon color-->
+    }
+h2 {
+    color: #8C1D40; <!-- the maroon color-->
+}
+slides > slide {
+    background: linear-gradient(#ffffff, #ffffff 85%, #ffffff);
+    background-color: white;
+}
+</style>
+
+# Introduction
+
+Hello

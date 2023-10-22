@@ -1,22 +1,27 @@
 ---
 title: "Project 1"
 author: "Archit Singh, Sreeram Kondapalli"
-output: pdf_document
+output: 
+  pdf_document: 
+    toc: true
 date: "2023-10-12"
 ---
 
+\newpage
+
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE, warning=FALSE, message=FALSE)
 ```
 
-```{r, echo=FALSE, message=FALSE}
+```{r, echo=FALSE}
 library(ggplot2)
 library(dplyr)
 library(tidyr)
+library(stringr)
 ```
 
 
-## Introduction
+# Introduction
 
 - In our project we wish to analyze how the rise of AI tools like ChatGPT has impacted the education industry and the tech industry
 as a whole, seeing how companies that embraced it fared versus companies that did not.  We intend to delve into various aspects 
@@ -25,30 +30,119 @@ that have not embraced these innovations.
 - Our primary motivating question for this project is: "What is the impact of AI tools, such as ChatGPT, on the education industry 
 and the tech sector, and how has this adoption influenced the competitive landscape and performance of companies?"
 
-## Methods/ Datasets
+# Methods/ Datasets
 
 There are many datasets needed to analyze this topic as a whole. We have datasets accross the range from datasets of companies' stocks
 to datasets for ChatGPT user growth, as well as a student survey on how they feel about AI.
 
-#### ChatGPT User Growth 
+## Students' Perspective on AI
+
+We begin with a dataset that surveyed 91 students on their feelings about AI. There were many questions asked in this survey such as 
+how the students learn about AI and when they think of AI what do they feel. However the main questions we are focusing on that were
+asked in this survey were the following:
+
+  - Question 6: In which areas do you think AI would have a big impact? With their options being: Education, Medicine, Agriculture, Constructions, Marketing,Public administration, Art
+  - Question 7: On a scale of 1 to 10, how useful do you think AI would be in the educational process? (1- not useful at all, 10-extremely useful)
+
+Let us now focus on Question 6
+
+```{r}
+students_survey_ai <- read.csv("Survey_AI.csv")
+# Bar plot for Q6
+# Separate the responses to question 6
+df_q6 <- students_survey_ai %>%
+  select(Q6.Domains) %>%
+  separate_rows(Q6.Domains, sep = ";") %>%
+  mutate(Q6.Domains = str_to_lower(str_trim(Q6.Domains)))
+
+# Count the frequency of each domain
+df_q6_count <- df_q6 %>%
+  group_by(Q6.Domains) %>%
+  summarise(Count = n())
+
+# Plot the data
+ggplot(df_q6_count, aes(x = Q6.Domains, y = Count)) +
+  geom_bar(stat = "identity") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(x = "Industries", y = "Count", title = "Q6: Impact Of AI Across Different Industries")
+```
+
+This bar plot shows us how the participants responded to the question, we see that Medicine is the most closely followed by education. We wanted to investigate education further
+thus we are going to now see specifically how the participants felt about AI in education with question 7.
+
+```{r}
+# Bar plot for Q7
+ggplot(students_survey_ai, aes(x = Q7.Utility_grade)) +
+  geom_histogram(binwidth = 1, fill = "steelblue", color = "black") +
+  labs(x = "Rating (1-10)", y = "Count", title = "Q7: How Useful Do You Think AI Would Be In The Educational Process")
+
+# Bar plot for Q11.Disadvantage_educational_process
+# students_survey_ai %>%
+#   count(Q11.Disadvantage_educational_process) %>%
+#   ggplot(aes(x = reorder(Q11.Disadvantage_educational_process, n), y = n)) +
+#   geom_bar(stat = "identity", fill = "steelblue") +
+#   labs(x = "Disadvantage in Educational Process", y = "Count", title = "Frequency of Each Disadvantage") +
+#   coord_flip()
+```
+
+We can see that from this bar plot that most 10 was the most frequent number and it indicates that most students that participated in this survey believe that AI is going to be
+super helpful in the education sector.
+
+## Chegg Stock
+
+The ethics of the matter aside before the release of AI tools, students turned to websites such as Chegg to help them in their school work. This is reflected in their stock
+price, Chegg is only one of the homework help companies that is publically traded. We can see that Chegg stock was higher than ever right before the release of ChatGPT in November of 2022.
+
+```{r}
+# Load in data
+chegg_stock_price <- read.csv("CHGG.csv")
+
+# Ensure the Date column is a Date type
+chegg_stock_price$Date <- as.Date(chegg_stock_price$Date, format="%Y-%m-%d")
+
+# Filter the data
+filtered_chegg_stock_price <- chegg_stock_price %>%
+  filter(Date >= as.Date("2022-05-01") & Date <= as.Date("2022-11-01"))
+
+# Enhanced graph
+ggplot(data = filtered_chegg_stock_price, aes(x = Date, y = Close)) +
+  geom_line(color = "blue", size = 1.5) +
+  geom_point(color = "red", size = 3) +
+  # scale_color_manual(name = "", values = c("Stock Price" = "blue")) +
+  labs(title = "Chegg Stock Price 6 months before the release of ChatGPT",
+       x = "Month",
+       y = "Closing Price ($)") +
+  theme_minimal() +
+  theme(
+    panel.grid.major = element_line(color = "gray90", size = 0.5),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "none"
+  ) +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b %Y")
+```
+
+## ChatGPT User Growth 
+
+Something magical happened in November of 2022 as mentioned earlier. OpenAI which is a research lab focused on AI released their first public GPT model to the public being free to use.
+We can see that ChatGPT user growth since it was release has been momentous. In fact, it is one of the fastest services to reach a million users as we will see. Let's see ChatGPT's user growth
+plotted since its release.
 
 ```{r}
 # Read data from the CSV file
 chatgpt_users <- read.csv("Number of ChatGPT users recorded over past months.csv")
-head(chatgpt_users)
 #Renaming for simplicity
 chatgpt_users <- chatgpt_users %>%
   rename(TotalVisits = 'Number.of.ChatGPT.users.recorded.over.past.months')
 chatgpt_users$Date <- as.Date(chatgpt_users$Date, format="%Y-%m-%d")
-```
-```{r}
+
 label_format_millions <- function(x) {
   scales::number_format(scale = 1e-6, suffix = "m")(x)
 }
 
 ggplot(chatgpt_users, aes(x=Date, y=TotalVisits)) +
-  geom_line(color = "blue", size = 1.2) +
   geom_point(color = "red", size = 3, shape = 19, alpha = 0.7) +
+  geom_line(color = "blue", size = 1.2) +
   labs(title="Number of ChatGPT Users Over Time",
        subtitle="Monthly data from Nov 2022 to Aug 2023",
        x="Date", y="Total Visits (in millions)") +
@@ -64,39 +158,24 @@ ggplot(chatgpt_users, aes(x=Date, y=TotalVisits)) +
     panel.grid.minor = element_blank()
   )
 ```
+
+This line plot shows us the amazing growth of ChatGPT and how it took the world by storm. In fact let us look at how long popular services took to reach 1 million users vs how long ChatGPT took.
+
 ```{r}
-# Load in data
-chegg_stock_price <- read.csv("CHGG.csv")
-
-# Ensure the Date column is a Date type
-chegg_stock_price$Date <- as.Date(chegg_stock_price$Date, format="%Y-%m-%d")
-
-# Filter the data
-filtered_chegg_stock_price <- chegg_stock_price %>%
-  filter(Date >= as.Date("2022-05-01") & Date <= as.Date("2022-11-01"))
-
-# Enhanced graph
-ggplot(data = filtered_chegg_stock_price, aes(x = Date, y = Close)) +
-  geom_line(aes(color = "Stock Price"), size = 1.5) +
-  geom_point(aes(color = "Stock Price"), size = 3) +
-  scale_color_manual(name = "", values = c("Stock Price" = "blue")) +
-  labs(title = "Chegg Stock Price 6 months before ChatGPT",
-       x = "Month",
-       y = "Closing Price ($)") +
-  theme_minimal() +
-  theme(
-    panel.grid.major = element_line(color = "gray90", size = 0.5),
-    panel.grid.minor = element_blank(),
-    axis.text.x = element_text(angle = 45, hjust = 1),
-    legend.position = "none"
-  ) +
-  scale_x_date(date_breaks = "1 month", date_labels = "%b %Y")
-
+one_mil_users <- read.csv("time-taken-by-services-to-reach-1M.csv")
+ggplot(one_mil_users, aes(x = reorder(Service, Days_to_reach_1M_users), y = Days_to_reach_1M_users)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  geom_text(aes(label = Days_to_reach_1M_users), hjust=-0.01) +
+  labs(x = "Service", y = "Days to reach 1M users") +
+  coord_flip() +
+  ylim(0, max(one_mil_users$Days_to_reach_1M_users) + 100) +
+  theme_minimal()
 ```
-
  
-#### ChatGPT User growth VS Chegg stock
-wzp
+## ChatGPT User growth VS Chegg stock
+
+Finally, here we analyze the impact that ChatGPT has had on the education industry as a whole with Chegg being a representation of the older education industry vs ChatGPT being the newer representation.
+
 ```{r}
 chatgpt_users$Date <- as.Date(chatgpt_users$Date)
 filtered_chegg_stock_price <- chegg_stock_price %>%
@@ -127,7 +206,7 @@ p <- ggplot() +
                      sec.axis = sec_axis(~./scale_factor, name = "Chegg Stock Price")) +
 
   # Define graph title, subtitle, and x-axis label
-  labs(title = "Comparison: Chegg Stock Price vs ChatGPT User Growth", 
+  labs(title = "Chegg Stock Price vs ChatGPT User Growth", 
        subtitle = "Visual representation of growth trends over time", 
        x = "Date", 
        caption = "Data source: Chegg & OpenAI") +
@@ -150,31 +229,17 @@ p <- ggplot() +
 print(p)
 ```
 
-#### Students' Perspective on AI
+In this graph we can see that Chegg's stock basically coincides dropping exactly with when ChatGPT releases and it has been on the downturn ever since then.
+Whereas in contrast ChatGPT has been growing until recently until it has started plateauing.
 
-hello
+## Stock of Companies That Released Public AI
+
+On the topic of AI's growth we now change focus onto companies that have followed OpenAI's lead and released generative AI related products.
+These companies show how profitable AI has been for them and how it can impact many industries and not just education.
+The following are the companies that announced generative AI, beginning with Nvidia, Nvidia, if you are unaware makes graphical chips
+that are great for running AI models for and they in turn sell these chips to other companies that want to create their own AI products.
 
 ```{r}
-students_survey_ai <- read.csv("Survey_AI.csv")
-
-ggplot(students_survey_ai, aes(x = Q7.Utility_grade)) +
-  geom_histogram(binwidth = 1, fill = "steelblue", color = "black") +
-  labs(x = "Utility Grade", y = "Count", title = "Distribution of Utility Grade")
-
-# Bar plot for Q11.Disadvantage_educational_process
-students_survey_ai %>%
-  count(Q11.Disadvantage_educational_process) %>%
-  ggplot(aes(x = reorder(Q11.Disadvantage_educational_process, n), y = n)) +
-  geom_bar(stat = "identity", fill = "steelblue") +
-  labs(x = "Disadvantage in Educational Process", y = "Count", title = "Frequency of Each Disadvantage") +
-  coord_flip()
-```
-
-#### Stock of Companies That Released Public AI
-
-The following are the companies that announced generative AI
-
-```{r, echo=FALSE}
 NVDA <- read.csv("NVDA.csv")
 
 # Convert the 'Date' column to a Date object
@@ -189,7 +254,9 @@ ggplot(NVDA, aes(x = Date, y = Close)) +
   theme_minimal()
 ```
 
-```{r, echo=FALSE}
+Next is Microsoft, and their big generative AI product has been Bing AI. Since the release of Bing AI, Microsoft's stock has never been higher.
+
+```{r}
 MSFT <- read.csv("MSFT.csv")
 
 # Convert the 'Date' column to a Date object
@@ -204,7 +271,10 @@ ggplot(MSFT, aes(x = Date, y = Close)) +
   theme_minimal()
 ```
 
-```{r, echo=FALSE}
+Finally, we look at Google's stock as a bit of an outlier, in which Google released their Bard AI to much criticisim because of something that
+the chatbot got wrong in promotional materials. 
+
+```{r}
 GOOG <- read.csv("GOOGL.csv")
 
 # Convert the 'Date' column to a Date object
@@ -219,12 +289,17 @@ ggplot(GOOG, aes(x = Date, y = Close)) +
   theme_minimal()
 ```
 
-#### Salaries for AI and ML Specialists
+## Salaries for AI and ML Specialists
 
-#### ML Model (Companies that integrate AI)
 
-## Results
 
-## Conclusions
+# Results
 
-## Appendix
+AI is good.
+
+# Conclusions
+
+AI is good.
+
+# Appendix
+```{r ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}```
