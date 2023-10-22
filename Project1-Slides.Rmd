@@ -1,12 +1,12 @@
 ---
-title: "Analyzing/Visualizing Residuals "
+title: "Project 1"
 author: "Archit Singh, Sreeram Kondapalli"
 date: "2023-10-17"
 output:
     ioslides_presentation:
         widescreen: yes
         smaller: yes
-        transition: faster
+        transition: default
 ---
 <style type="text/css">
 body p, div, h1, h2, h3, h4, h5 {
@@ -25,6 +25,10 @@ slides > slide {
 }
 </style>
 
-# Introduction
+## Introduction
+
+Hello
+
+## Methods and Datasets
 
 Hello
