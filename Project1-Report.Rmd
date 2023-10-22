@@ -142,7 +142,6 @@ filtered_chegg_stock_price <- chegg_stock_price %>%
 ggplot(data = filtered_chegg_stock_price, aes(x = Date, y = Close)) +
   geom_line(color = "blue", size = 1.5) +
   geom_point(color = "red", size = 3) +
-  # scale_color_manual(name = "", values = c("Stock Price" = "blue")) +
   labs(title = "Chegg Stock Price 6 months before the release of ChatGPT",
        x = "Month",
        y = "Closing Price ($)",
@@ -428,5 +427,15 @@ economic implications, could provide invaluable insights. These multifaceted stu
 informed decision-making and strategic planning in harnessing AI's potential responsibly. What an exciting time to be alive!
 
 # Appendix
+
+You can find the datasets used in this project in the following sites
+
+- [Students Survey on AI in Education](https://www.kaggle.com/datasets/gianinamariapetrascu/survey-on-students-perceptions-of-ai-in-education)
+- [Chegg Stock Price](https://finance.yahoo.com/quote/CHGG/history?p=CHGG)
+- [ChatGPT User Growth](https://nerdynav.com/chatgpt-statistics/)
+- [NVIDIA Stock Price](https://finance.yahoo.com/quote/NVDA/history?p=NVDA)
+- [Microsoft Stock Price](https://finance.yahoo.com/quote/MSFT/history?p=MSFT)
+- [Google Stock Price](https://finance.yahoo.com/quote/GOOGL/history?p=GOOGL)
+
 ```{r ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}
 ```

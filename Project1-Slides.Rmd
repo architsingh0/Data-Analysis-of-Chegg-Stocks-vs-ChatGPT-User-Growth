@@ -23,12 +23,357 @@ slides > slide {
     background: linear-gradient(#ffffff, #ffffff 85%, #ffffff);
     background-color: white;
 }
+.left-slide-content {
+  width: 50%;
+  float: left;
+}
+
+.right-slide-content {
+  width: 50%;
+  float: right;
+}
 </style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(stringr)
+```
 
 ## Introduction
 
-Hello
+- The purpose of this project is to explore how the rise of AI tools like ChatGPT have impacted the education industry and the
+technology industry as a whole. We had the following guiding questions throughout this project.
+  - Do the students in the survey believe that AI will have a large impact on education.?
+  - How was Chegg's stock doing before the release of ChatGPT?
+  - How quickly did ChatGPT reach 1 million users?
+  - How does Chegg's stock price compare to ChatGPT's user growth?
+  - What effect does the adoption of AI have on the stock price of publicly traded companies?
 
 ## Methods and Datasets
 
-Hello
+### Students' Perspective on AI
+
+This dataset surveyed 91 students on their feelings about AI. There were many questions asked in this survey such as 
+how the students learn about AI and when they think of AI what do they feel. However the main questions we are focusing on that were
+asked in this survey, relate to our original question about whether the students believe that AI will have a large impact on education, 
+these were the following relevant questions that help answer our questions when analyzed:
+
+- Question 6: In which areas do you think AI would have a big impact? With their options being: Education, Medicine, Agriculture, Constructions, 
+Marketing,Public administration, Art
+- Question 7: On a scale of 1 to 10, how useful do you think AI would be in the educational process? (1- not useful at all, 10-extremely useful)
+
+## Question 6: In which areas do you think AI would have a big impact? 
+
+```{r}
+students_survey_ai <- read.csv("Survey_AI.csv")
+# Bar plot for Q6
+# Separate the responses to question 6
+df_q6 <- students_survey_ai %>%
+  select(Q6.Domains) %>%
+  separate_rows(Q6.Domains, sep = ";") %>%
+  mutate(Q6.Domains = str_to_lower(str_trim(Q6.Domains)))
+
+# Count the frequency of each domain
+df_q6_count <- df_q6 %>%
+  group_by(Q6.Domains) %>%
+  summarise(Count = n())
+
+# Plot the data
+ggplot(df_q6_count, aes(x = reorder(Q6.Domains, Count), y = Count)) +
+  geom_bar(stat = "identity", fill = "steelblue", width = 0.7) +
+  coord_flip() +
+  theme_minimal(base_size = 15) +
+  theme(
+    axis.text.x = element_text(angle = 0, hjust = 1, vjust = 0.5, color = "black"),
+    axis.text.y = element_text(color = "black"),
+    axis.title.x = element_text(margin = margin(t = 20, r = 0, b = 0, l = 0)),
+    axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)),
+    plot.title = element_text(hjust = 0.5),
+    plot.caption = element_text(hjust = 1, size = 8)
+  ) +
+  labs(
+    x = "Count",
+    y = "Industries",
+    title = "Impact Of AI Across Different Industries",
+    caption = "Source: Student Survey on AI in Education"
+  )
+```
+
+## Question 7: On a scale of 1 to 10, how useful do you think AI would be in the educational process?
+
+```{r}
+# Bar plot for Q7
+ggplot(students_survey_ai, aes(x = Q7.Utility_grade)) +
+  geom_histogram(binwidth = 1, fill = "steelblue", color = "black") +
+  labs(x = "Rating (1-10)", y = "Count", title = "How Useful Do You Think AI Would Be In The\nEducational Process")+
+  theme_minimal() +
+  theme(
+    axis.text = element_text(size = 12, color = "black"),
+    axis.title = element_text(size = 14, face = "bold"),
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+    plot.caption = element_text(hjust = 1, size = 8)
+  )
+```
+
+## Chegg Stock
+
+```{r}
+# Load in data
+chegg_stock_price <- read.csv("CHGG.csv")
+
+# Ensure the Date column is a Date type
+chegg_stock_price$Date <- as.Date(chegg_stock_price$Date, format="%Y-%m-%d")
+
+# Filter the data
+filtered_chegg_stock_price <- chegg_stock_price %>%
+  filter(Date >= as.Date("2022-05-01") & Date <= as.Date("2022-11-01"))
+
+# Enhanced graph
+ggplot(data = filtered_chegg_stock_price, aes(x = Date, y = Close)) +
+  geom_line(color = "blue", size = 1.5) +
+  geom_point(color = "red", size = 3) +
+  labs(title = "Chegg Stock Price 6 months before the release of ChatGPT",
+       x = "Month",
+       y = "Closing Price ($)",
+       caption = "Source: Yahoo Finance") +
+  theme_minimal() +
+  theme(
+    panel.grid.major = element_line(color = "gray90", size = 0.5),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "none",
+    plot.caption = element_text(hjust = 1, size = 8)
+  ) +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b %Y")
+```
+
+## ChatGPT User Growth
+
+<div class="left-slide-content">
+
+```{r, out.width='100%'}
+# Read data from the CSV file
+chatgpt_users <- read.csv("Number of ChatGPT users recorded over past months.csv")
+#Renaming for simplicity
+chatgpt_users <- chatgpt_users %>%
+  rename(TotalVisits = 'Number.of.ChatGPT.users.recorded.over.past.months')
+chatgpt_users$Date <- as.Date(chatgpt_users$Date, format="%Y-%m-%d")
+
+label_format_millions <- function(x) {
+  scales::number_format(scale = 1e-6, suffix = "m")(x)
+}
+
+ggplot(chatgpt_users, aes(x=Date, y=TotalVisits)) +
+  geom_point(color = "red", size = 3, shape = 19, alpha = 0.7) +
+  geom_line(color = "blue", size = 1.2) +
+  labs(title="Number of ChatGPT Users Over Time",
+       subtitle="Monthly data from Nov 2022 to Aug 2023",
+       x="Date", y="Total Visits (in millions)",
+       caption = "Source: SimilarWeb") +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b %Y") +
+  scale_y_continuous(labels = label_format_millions) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(size = 12, hjust = 0.5),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.title = element_text(size = 14, face = "bold"),
+    panel.grid.major = element_line(color = "gray80"),
+    panel.grid.minor = element_blank()
+  )
+```
+</div>
+
+<div class="right-slide-content">
+```{r, out.width='100%'}
+one_mil_users <- read.csv("time-taken-by-services-to-reach-1M.csv")
+ggplot(one_mil_users, aes(x = reorder(Service, Days_to_reach_1M_users), y = Days_to_reach_1M_users)) +
+  geom_bar(stat = "identity", fill = "#3498db", width = 0.7) +
+  geom_text(aes(label = Days_to_reach_1M_users), position = position_dodge(0.5), hjust = -0.1, vjust = 0.5, color = "black", lineWidth = 4) +
+  labs(
+    title = "Days Taken by Services to Reach 1 Million Users",
+    x = "Service",
+    y = "Days to reach 1M users",
+    caption = "Source: Nerdy Nav"
+  ) +
+  coord_flip() +
+  ylim(0, max(one_mil_users$Days_to_reach_1M_users) + 100) +
+  theme_light(base_size = 14) +
+  theme(
+    axis.title = element_text(face = "bold"),
+    axis.text = element_text(color = "black"),
+    plot.title = element_text(hjust = 1, size = 14, face = "bold")
+  )
+```
+</div>
+
+## Chegg Stock VS ChatGPT User Growth
+
+```{r, out.width='100%'}
+chatgpt_users$Date <- as.Date(chatgpt_users$Date)
+filtered_chegg_stock_price <- chegg_stock_price %>%
+  filter(Date >= as.Date("2022-05-01") & Date <= as.Date("2023-08-01"))
+label_format_millions <- function(x) {
+  scales::number_format(scale = 1e-6, suffix = "m")(x)
+}
+
+# Set up a scale factor based on the max values of both datasets
+scale_factor <- max(chatgpt_users$TotalVisits) / max(filtered_chegg_stock_price$Close)
+
+# Begin the ggplot visualization
+p <- ggplot() +
+
+  # Plot ChatGPT User Growth with thicker line and color adjustments
+  geom_line(data = chatgpt_users, 
+            aes(x = Date, y = TotalVisits, color = "ChatGPT User Growth"), 
+            size = 1.2, alpha = 0.8) +
+  
+  # Plot Chegg Stock Price with adjusted scale factor, thicker line, and color adjustments
+  geom_line(data = filtered_chegg_stock_price, 
+            aes(x = Date, y = Close * scale_factor, color = "Chegg Stock Price"), 
+            size = 1.2, alpha = 0.8) +
+
+  # Set primary y-axis for ChatGPT User Growth with label format and secondary y-axis for Chegg Stock Price
+  scale_y_continuous(name = "ChatGPT User Growth", 
+                     labels = label_format_millions, 
+                     sec.axis = sec_axis(~./scale_factor, name = "Chegg Stock Price")) +
+
+  # Define graph title, subtitle, and x-axis label
+  labs(title = "Chegg Stock Price vs ChatGPT User Growth", 
+       subtitle = "Visual representation of growth trends over time", 
+       x = "Date", 
+       caption = "Data source: Yahoo Finance & SimilarWeb") +
+  
+  # Use a light grid theme for a professional look
+  theme_light() +
+
+  # Increase the title font size and style
+  theme(plot.title = element_text(face = "bold", size = 16),
+        plot.subtitle = element_text(face = "italic", size = 12),
+        axis.title.x = element_text(size = 14),
+        axis.title.y = element_text(size = 14),
+        legend.position = "bottom",
+        legend.key.size = unit(1, "cm")) +
+
+  # Manually set the colors for the two lines with a pleasant color palette
+  scale_color_manual(values = c("Chegg Stock Price" = "#1f77b4", "ChatGPT User Growth" = "#ff7f0e"))
+
+# Display the plot
+print(p)
+```
+
+## Stock of NVDA and MSFT
+
+<div class="left-slide-content">
+
+```{r, out.width='100%'}
+NVDA <- read.csv("NVDA.csv")
+
+# Convert the 'Date' column to a Date object
+NVDA$Date <- as.Date(NVDA$Date)
+
+ggplot(NVDA, aes(x = Date, y = Close)) +
+  geom_line(color = "green", size = 1) +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b %Y") +
+  scale_y_continuous(labels = scales::dollar_format(scale = 1)) +
+  labs(
+    title = "NVIDIA Stock Price Over Time",
+    x = "Date",
+    y = "Close Price (USD)",
+    caption = "Source: Stock Market Data"
+  ) +
+  theme_light(base_size = 12) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(size = 12, hjust = 0.5),
+    plot.caption = element_text(size = 8, hjust = 1)
+  )
+```
+</div>
+
+<div class="right-slide-content">
+
+```{r, out.width='100%'}
+MSFT <- read.csv("MSFT.csv")
+
+# Convert the 'Date' column to a Date object
+MSFT$Date <- as.Date(MSFT$Date)
+
+ggplot(MSFT, aes(x = Date, y = Close)) +
+  geom_line(color = "green", size = 1.2) +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b %Y") +
+  labs(
+    title = "Microsoft Stock Price Over Time",
+    subtitle = "Based on Close Price",
+    x = "Date",
+    y = "Close Price ($)"
+  ) +
+  theme_light(base_size = 12) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+    plot.subtitle = element_text(hjust = 0.5, size = 14),
+    axis.title = element_text(face = "bold", size = 14)
+  ) +
+  scale_x_date(date_breaks = "3 months", date_labels = "%b %Y") 
+```
+</div>
+
+## Stock of GOOGL
+
+```{r}
+GOOG <- read.csv("GOOGL.csv")
+
+# Convert the 'Date' column to a Date object
+GOOG$Date <- as.Date(GOOG$Date)
+
+# Create a line plot using ggplot2 with a red line
+ggplot(GOOG, aes(x = Date, y = Close)) +
+  geom_line(color = "red", size = 1.2) + # Adjusted color and size for better visualization
+  labs(
+    title = "Google Stock Price Over Time",
+    subtitle = "Based on Close Price", 
+    x = "Date",
+    y = "Close Price ($)"
+  ) +
+  theme_light(base_size = 12) + # Switched to theme_light for a cleaner look
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+    plot.subtitle = element_text(hjust = 0.5, size = 14),
+    axis.title = element_text(face = "bold", size = 14),
+  )
+```
+
+## Results
+
+- Surveyed Students believe that AI will have a major impact on education.
+- Before the release of generative AI, Chegg's stock had never been higher meaning students were already
+using services to help them in school.
+- ChatGPT reached 1 million users in 5 days showing how they filled a gap that the market was looking for.
+- Chegg's stock exactly started dropping since the release of ChatGPT
+- All the companies that have released generative AI products have seen a major increase in their stocks.
+
+The results of this project show that both socially and economically AI has already started impacting our lives
+
+## Conclusion
+
+- AI tools, like ChatGPT, have significantly influenced the education and technology sectors, offering a competitive advantage to early adopters.
+- Companies such as Nvidia and Microsoft have shown improved market performance post their AI ventures, suggesting a model for others aiming for growth and improved services.
+- Survey data indicates a positive impact of AI on educational processes, aligning with market trends.
+- Traditional educational platforms like Chegg have seen a decline in stock value compared to the rise of AI-driven solutions like ChatGPT.
+- The data emphasizes the importance of AI in the current digital landscape, suggesting a need for its broader integration across sectors for innovation and better service delivery.
+
+## Further Study
+
+- A cross-sector comparison is needed to understand AI's broader impact, especially in fields like healthcare, agriculture, and public administration.
+- Ethical concerns related to AI, especially in education, need rigorous examination, including issues of data privacy, security, and biases.
+- Policy and regulation dynamics concerning AI adoption present significant research opportunities, with potential effects on innovation.
+- The economic effects of AI, including job displacement and broader market implications, warrant thorough investigation.
+- These comprehensive studies will pave the way for informed decision-making in maximizing AI's benefits responsibly.
