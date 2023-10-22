@@ -61,10 +61,22 @@ df_q6_count <- df_q6 %>%
   summarise(Count = n())
 
 # Plot the data
-ggplot(df_q6_count, aes(x = Q6.Domains, y = Count)) +
-  geom_bar(stat = "identity") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  labs(x = "Industries", y = "Count", title = "Q6: Impact Of AI Across Different Industries")
+ggplot(df_q6_count, aes(x = reorder(Q6.Domains, Count), y = Count)) +
+  geom_bar(stat = "identity", fill = "steelblue", width = 0.7) +
+  coord_flip() +
+  theme_minimal(base_size = 15) +
+  theme(
+    axis.text.x = element_text(angle = 0, hjust = 1, vjust = 0.5, color = "black"),
+    axis.text.y = element_text(color = "black"),
+    axis.title.x = element_text(margin = margin(t = 20, r = 0, b = 0, l = 0)),
+    axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)),
+    plot.title = element_text(hjust = 0.5)
+  ) +
+  labs(
+    x = "Count",
+    y = "Industries",
+    title = "Impact Of AI Across Different Industries",
+  )
 ```
 
 This bar plot shows us how the participants responded to the question, we see that Medicine is the most closely followed by education. We wanted to investigate education further
@@ -73,8 +85,23 @@ thus we are going to now see specifically how the participants felt about AI in 
 ```{r}
 # Bar plot for Q7
 ggplot(students_survey_ai, aes(x = Q7.Utility_grade)) +
-  geom_histogram(binwidth = 1, fill = "steelblue", color = "black") +
-  labs(x = "Rating (1-10)", y = "Count", title = "Q7: How Useful Do You Think AI Would Be In The Educational Process")
+  geom_histogram(binwidth = 1, fill = "skyblue3", color = "black", alpha = 0.7) +
+  scale_x_continuous(breaks = seq(1, 10, 1), limits = c(1, 10)) +
+  scale_y_continuous(breaks = seq(0, max(table(students_survey_ai$Q7.Utility_grade))+1, 1)) +
+  labs(
+    x = "Rating (1-10)",
+    y = "Count",
+    title = "How Useful AI Would Be In The Educational Process",
+    caption = "Source: Students Survey on AI in Education"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text = element_text(size = 12, color = "black"),
+    axis.title = element_text(size = 14, face = "bold"),
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+    plot.caption = element_text(hjust = 1, size = 8)
+  )
+
 
 # Bar plot for Q11.Disadvantage_educational_process
 # students_survey_ai %>%
@@ -164,12 +191,21 @@ This line plot shows us the amazing growth of ChatGPT and how it took the world 
 ```{r}
 one_mil_users <- read.csv("time-taken-by-services-to-reach-1M.csv")
 ggplot(one_mil_users, aes(x = reorder(Service, Days_to_reach_1M_users), y = Days_to_reach_1M_users)) +
-  geom_bar(stat = "identity", fill = "steelblue") +
-  geom_text(aes(label = Days_to_reach_1M_users), hjust=-0.01) +
-  labs(x = "Service", y = "Days to reach 1M users") +
+  geom_bar(stat = "identity", fill = "#3498db", width = 0.7) +
+  geom_text(aes(label = Days_to_reach_1M_users), position = position_dodge(0.5), hjust = -0.1, vjust = 0.5, color = "black", lineWidth = 4) +
+  labs(
+    title = "Days Taken by Services to Reach 1 Million Users",
+    x = "Service",
+    y = "Days to reach 1M users"
+  ) +
   coord_flip() +
   ylim(0, max(one_mil_users$Days_to_reach_1M_users) + 100) +
-  theme_minimal()
+  theme_light(base_size = 14) +
+  theme(
+    axis.title = element_text(face = "bold"),
+    axis.text = element_text(color = "black"),
+    plot.title = element_text(hjust = 1, size = 14, face = "bold")
+  )
 ```
  
 ## ChatGPT User growth VS Chegg stock
@@ -247,11 +283,24 @@ NVDA$Date <- as.Date(NVDA$Date)
 
 # Create a line plot using ggplot2 with a red line
 ggplot(NVDA, aes(x = Date, y = Close)) +
-  geom_line(color = "red") +
-  labs(title = "NVIDIA Stock Price Over Time",
-       x = "Date",
-       y = "Close Price") +
-  theme_minimal()
+  geom_line(color = "#E63946", size = 1) +
+  geom_smooth(method = 'loess', se = FALSE, color = "blue", size = 1) +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b %Y") +
+  scale_y_continuous(labels = scales::dollar_format(scale = 1)) +
+  labs(
+    title = "NVIDIA Stock Price Over Time",
+    subtitle = "Daily Closing Prices with LOESS Smoothing",
+    x = "Date",
+    y = "Close Price (USD)",
+    caption = "Source: Stock Market Data"
+  ) +
+  theme_light(base_size = 12) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    plot.title = element_text(size = 16, face = "bold", hjust = 0.5),
+    plot.subtitle = element_text(size = 12, hjust = 0.5),
+    plot.caption = element_text(size = 8, hjust = 1)
+  )
 ```
 
 Next is Microsoft, and their big generative AI product has been Bing AI. Since the release of Bing AI, Microsoft's stock has never been higher.
@@ -264,11 +313,22 @@ MSFT$Date <- as.Date(MSFT$Date)
 
 # Create a line plot using ggplot2 with a red line
 ggplot(MSFT, aes(x = Date, y = Close)) +
-  geom_line(color = "red") +
-  labs(title = "Microsoft Stock Price Over Time",
-       x = "Date",
-       y = "Close Price") +
-  theme_minimal()
+  geom_line(color = "#0072B2", size = 1.2) +
+  labs(
+    title = "Microsoft Stock Price Over Time",
+    subtitle = "Based on Close Price",
+    x = "Date",
+    y = "Close Price ($)"
+  ) +
+  theme_light(base_size = 14) +
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+    plot.subtitle = element_text(hjust = 0.5, size = 14),
+    axis.title = element_text(face = "bold", size = 14),
+    panel.grid.major = element_line(linetype = "dashed", color = "grey90"),
+    panel.grid.minor = element_blank()
+  ) +
+  scale_x_date(date_breaks = "3 months", date_labels = "%b %Y") 
 ```
 
 Finally, we look at Google's stock as a bit of an outlier, in which Google released their Bard AI to much criticisim because of something that
@@ -282,11 +342,21 @@ GOOG$Date <- as.Date(GOOG$Date)
 
 # Create a line plot using ggplot2 with a red line
 ggplot(GOOG, aes(x = Date, y = Close)) +
-  geom_line(color = "red") +
-  labs(title = "Google Stock Price Over Time",
-       x = "Date",
-       y = "Close Price") +
-  theme_minimal()
+  geom_line(color = "#D32F2F", size = 1.2) + # Adjusted color and size for better visualization
+  labs(
+    title = "Google Stock Price Over Time",
+    subtitle = "Based on Close Price", 
+    x = "Date",
+    y = "Close Price ($)"
+  ) +
+  theme_light(base_size = 14) + # Switched to theme_light for a cleaner look
+  theme(
+    plot.title = element_text(hjust = 0.5, size = 16, face = "bold"),
+    plot.subtitle = element_text(hjust = 0.5, size = 14),
+    axis.title = element_text(face = "bold", size = 14),
+    panel.grid.major = element_line(linetype = "dashed", color = "grey90"),
+    panel.grid.minor = element_blank()
+  )
 ```
 
 ## Salaries for AI and ML Specialists
