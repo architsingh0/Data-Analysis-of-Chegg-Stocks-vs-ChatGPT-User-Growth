@@ -98,8 +98,8 @@ ggplot(df_q6_count, aes(x = reorder(Q6.Domains, Count), y = Count)) +
     plot.caption = element_text(hjust = 1, size = 8)
   ) +
   labs(
-    x = "Count",
-    y = "Industries",
+    x = "Industries",
+    y = "Count",
     title = "Impact Of AI Across Different Industries",
     caption = "Source: Student Survey on AI in Education"
   )
