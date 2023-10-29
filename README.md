@@ -1,4 +1,4 @@
-# 📊 Stock Analysis Extravaganza 📈
+# 📊 Stock Analysis using Data Science 📈
 
 Welcome to our Data Science project where we dive deep into the world of stocks, analyzing the performance of various companies like **Chegg, Google, Microsoft, NVIDIA**, and more! 🚀
 
